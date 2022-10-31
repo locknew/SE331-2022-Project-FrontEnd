@@ -1,16 +1,92 @@
 <template>
+  <div id="flashMessage" v-if="GStore.flashMessage">
+    {{ GStore.flashMessage }}
+  </div>
   <header>
     <h1>Covid 19</h1>
   </header>
   <nav>
-    <router-link to="/">Home</router-link> ||
-    <router-link to="/vaccine">Vaccinates</router-link>
+    <router-link v-if="isUser || isAdmin || isDoctor" to="/patientList"
+      >All Patient ||</router-link
+    >
+    <router-link v-if="!isUser && !isAdmin && !isDoctor" to="/login">
+      Login ||</router-link
+    >
+    <router-link v-if="!isUser && !isAdmin && !isDoctor" to="/register">
+      Register ||</router-link
+    >
+    <router-link v-if="isDoctor" :to="{ name: 'PatientInCareView' }">
+      Patient In Care ||</router-link
+    >
+    <a v-if="isUser || isAdmin || isDoctor" class="nav-link" @click="logout">
+      LogOut ||</a
+    >
+    <router-link v-if="isAdmin" to="/adminpanel"> Admin Panel ||</router-link>
+    <p v-if="GStore.currentUser">
+      Welcome! <u style="color: red">{{ GStore.currentUser.name }}</u>
+    </p>
   </nav>
   <router-view />
-  <footer>@For SE331 mid term Project</footer>
+  <footer>
+    @For SE331 Final Project -:
+    <p style="color: white">{{ localTime }}</p>
+  </footer>
 </template>
 
+<script>
+import AuthService from "./services/AuthService";
+export default {
+  inject: ["GStore"],
+  data: function () {
+    return {
+      localTime: "",
+    };
+  },
+  computed: {
+    currentUser() {
+      return localStorage.getItem("user");
+    },
+    isAdmin() {
+      return AuthService.hasRoles("ROLE_ADMIN");
+    },
+    isUser() {
+      return AuthService.hasRoles("ROLE_USER");
+    },
+    isDoctor() {
+      return AuthService.hasRoles("ROLE_DOCTOR");
+    },
+  },
+  methods: {
+    showLocaleTime: function () {
+      var time = this;
+      setInterval(function () {
+        time.localTime = new Date().toLocaleTimeString();
+      }, 100);
+    },
+    logout() {
+      AuthService.logout();
+      this.$router.push("/");
+    },
+  },
+  mounted() {
+    this.showLocaleTime();
+  },
+};
+</script>
+
 <style>
+@keyframes colorfade {
+  from {
+    background: rgb(78, 238, 211);
+  }
+  to {
+    background: transparent;
+  }
+}
+#flashMessage {
+  animation-name: colorfade;
+  animation-duration: 3s;
+}
 body {
   height: 1150px;
 }

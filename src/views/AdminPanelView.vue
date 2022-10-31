@@ -1,47 +1,23 @@
 <template>
   <div id="pagedd">
-    <div class="events">
-      <EventCard v-for="event in events" :key="event.id" :event="event" />
-      <div class="pagination">
-        <router-link
-          id="page-prev"
-          :to="{ name: 'PatientList', query: { page: page - 1 } }"
-          rel="prev"
-          v-if="page != 1"
-        >
-          Prev Page
-        </router-link>
-        ||
-        <router-link
-          id="page-next"
-          :to="{ name: 'PatientList', query: { page: page + 1 } }"
-          rel="next"
-          v-if="hasNextPage"
-        >
-          Next Page
-        </router-link>
-      </div>
-    </div>
+    <h1><u>Admin Panel</u></h1>
+    <nav>
+      <router-link v-if="isAdmin" to="/addPatient">Add Patient ||</router-link>
+      <router-link v-if="isAdmin" to="/login" style="color: red">
+        Add role ||</router-link
+      >
+    </nav>
+    <router-view />
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import EventCard from "@/components/EventCard.vue";
 import EventService from "@/services/EventService.js";
+import AuthService from "@/services/AuthService";
 // import axios from 'axios'
 export default {
   name: "PatientList",
-  props: {
-    page: {
-      type: Number,
-      required: true,
-    },
-  },
-  components: {
-    EventCard, // register it as a child component
-  },
-
   data() {
     return {
       events: null,
@@ -50,9 +26,17 @@ export default {
     };
   },
   computed: {
-    hasNextPage() {
-      let totalPages = Math.ceil(this.totalEvents / 3);
-      return this.page < totalPages;
+    currentUser() {
+      return localStorage.getItem("user");
+    },
+    isAdmin() {
+      return AuthService.hasRoles("ROLE_ADMIN");
+    },
+    isUser() {
+      return AuthService.hasRoles("ROLE_USER");
+    },
+    isDoctor() {
+      return AuthService.hasRoles("ROLE_DOCTOR");
     },
   },
   // eslint-disable-next-line no-unused-vars

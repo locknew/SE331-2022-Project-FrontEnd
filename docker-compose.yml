@@ -3,4 +3,4 @@ services:
   web:
     image: "locknew/se331-injection-need:latest"
     ports:
-      - 3000:80
+      - 8001:80
